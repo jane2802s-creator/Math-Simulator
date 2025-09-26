@@ -1,1 +1,489 @@
-
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Охотник за уравнениями</title>
+    <style>
+        /* Основные стили */
+        * {
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Блок информации об игроке */
+        .player-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .player-data {
+            font-size: 1.1rem;
+        }
+        
+        .timer, .score {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        /* Блок уравнения */
+        .equation-container {
+            background-color: rgba(255, 255, 255, 0.3);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .equation {
+            font-size: 3rem;
+            margin: 0;
+        }
+        
+        /* Поле ввода и кнопки */
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        input {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px;
+            font-size: 1.5rem;
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #check-btn {
+            background-color: #4CAF50;
+        }
+        
+        #restart-btn {
+            background-color: #f44336;
+            display: none;
+        }
+        
+        #register-btn {
+            background-color: #2196F3;
+        }
+        
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #a777e3, #6e8efb);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .error-message {
+            color: #ffeb3b;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        /* Feedback */
+        .feedback {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            min-height: 30px;
+            margin: 15px 0;
+        }
+        
+        .correct {
+            color: #4CAF50;
+        }
+        
+        .incorrect {
+            color: #f44336;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .equation {
+                font-size: 2rem;
+            }
+            
+            .player-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Охотник за уравнениями</h1>
+        
+        <div class="player-info">
+            <div class="player-data">
+                Игрок: <span id="player-name">Не зарегистрирован</span>
+            </div>
+            <div class="player-data">
+                Класс: <span id="player-class">-</span>
+            </div>
+            <div class="timer">
+                Время: <span id="time">60</span>с
+            </div>
+            <div class="score">
+                Счет: <span id="score">0</span>
+            </div>
+        </div>
+        
+        <div class="equation-container">
+            <p class="equation" id="equation">Нажмите "Начать игру"</p>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="input-container">
+            <input type="text" id="answer-input" placeholder="Введите ответ" disabled>
+            <div class="buttons">
+                <button id="register-btn">Зарегистрироваться</button>
+                <button id="check-btn" disabled>Проверить</button>
+                <button id="restart-btn">Играть снова</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно регистрации -->
+    <div class="modal" id="register-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Регистрация игрока</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="name">Имя и фамилия:</label>
+                    <input type="text" id="name" class="form-control" required>
+                    <div class="error-message" id="name-error">Поле обязательно для заполнения</div>
+                </div>
+                <div class="form-group">
+                    <label for="class">Класс:</label>
+                    <input type="text" id="class" class="form-control" required>
+                    <div class="error-message" id="class-error">Поле обязательно для заполнения</div>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" id="start-game-btn">Начать игру</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // DOM элементы
+        const registerModal = document.getElementById('register-modal');
+        const registerBtn = document.getElementById('register-btn');
+        const registerForm = document.getElementById('register-form');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const checkBtn = document.getElementById('check-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const answerInput = document.getElementById('answer-input');
+        const equationElement = document.getElementById('equation');
+        const feedbackElement = document.getElementById('feedback');
+        const timeElement = document.getElementById('time');
+        const scoreElement = document.getElementById('score');
+        const playerNameElement = document.getElementById('player-name');
+        const playerClassElement = document.getElementById('player-class');
+        
+        // Игровые переменные
+        let timeLeft = 60;
+        let score = 0;
+        let timer;
+        let currentEquation = {};
+        let gameActive = false;
+        
+        // Открытие модального окна регистрации
+        registerBtn.addEventListener('click', () => {
+            registerModal.style.display = 'flex';
+        });
+        
+        // Валидация формы регистрации
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const playerClass = document.getElementById('class').value.trim();
+            let isValid = true;
+            
+            // Проверка имени
+            if (name === '') {
+                document.getElementById('name-error').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('name-error').style.display = 'none';
+            }
+            
+            // Проверка класса
+            if (playerClass === '') {
+                document.getElementById('class-error').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('class-error').style.display = 'none';
+            }
+            
+            // Если форма валидна, начинаем игру
+            if (isValid) {
+                startGame(name, playerClass);
+                registerModal.style.display = 'none';
+            }
+        });
+        
+        // Начало игры
+        function startGame(name, playerClass) {
+            // Установка данных игрока
+            playerNameElement.textContent = name;
+            playerClassElement.textContent = playerClass;
+            
+            // Сброс игровых параметров
+            timeLeft = 60;
+            score = 0;
+            scoreElement.textContent = score;
+            timeElement.textContent = timeLeft;
+            
+            // Активация игровых элементов
+            answerInput.disabled = false;
+            checkBtn.disabled = false;
+            registerBtn.disabled = true;
+            restartBtn.style.display = 'none';
+            feedbackElement.textContent = '';
+            gameActive = true;
+            
+            // Генерация первого уравнения
+            generateEquation();
+            
+            // Запуск таймера
+            timer = setInterval(() => {
+                timeLeft--;
+                timeElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        // Генерация случайного уравнения
+        function generateEquation() {
+            const equationTypes = ['addition', 'subtraction', 'multiplication'];
+            const type = equationTypes[Math.floor(Math.random() * equationTypes.length)];
+            
+            let a, x, c, equation;
+            
+            switch (type) {
+                case 'addition':
+                    a = Math.floor(Math.random() * 20) + 1;
+                    x = Math.floor(Math.random() * 20) + 1;
+                    c = a + x;
+                    equation = `${a} + x = ${c}`;
+                    break;
+                    
+                case 'subtraction':
+                    a = Math.floor(Math.random() * 20) + 1;
+                    x = Math.floor(Math.random() * 20) + 1;
+                    // Убедимся, что результат положительный
+                    while (a - x <= 0) {
+                        x = Math.floor(Math.random() * 20) + 1;
+                    }
+                    c = a - x;
+                    equation = `${a} - x = ${c}`;
+                    break;
+                    
+                case 'multiplication':
+                    a = Math.floor(Math.random() * 10) + 1;
+                    x = Math.floor(Math.random() * 10) + 1;
+                    c = a * x;
+                    equation = `${a} * x = ${c}`;
+                    break;
+            }
+            
+            currentEquation = {
+                type: type,
+                a: a,
+                x: x,
+                c: c,
+                equation: equation
+            };
+            
+            equationElement.textContent = equation;
+            answerInput.value = '';
+            answerInput.focus();
+        }
+        
+        // Проверка ответа
+        function checkAnswer() {
+            if (!gameActive) return;
+            
+            const userAnswer = parseInt(answerInput.value.trim());
+            
+            // Проверка на число
+            if (isNaN(userAnswer)) {
+                feedbackElement.textContent = 'Пожалуйста, введите число!';
+                feedbackElement.className = 'feedback incorrect';
+                return;
+            }
+            
+            // Проверка правильности ответа
+            if (userAnswer === currentEquation.x) {
+                score++;
+                scoreElement.textContent = score;
+                feedbackElement.textContent = 'Правильно! +1 очко';
+                feedbackElement.className = 'feedback correct';
+            } else {
+                feedbackElement.textContent = `Неправильно! Правильный ответ: ${currentEquation.x}`;
+                feedbackElement.className = 'feedback incorrect';
+            }
+            
+            // Генерация нового уравнения
+            generateEquation();
+        }
+        
+        // Окончание игры
+        function endGame() {
+            clearInterval(timer);
+            gameActive = false;
+            answerInput.disabled = true;
+            checkBtn.disabled = true;
+            restartBtn.style.display = 'block';
+            feedbackElement.textContent = `Игра окончена! Ваш счет: ${score}`;
+            feedbackElement.className = 'feedback';
+        }
+        
+        // Перезапуск игры
+        restartBtn.addEventListener('click', () => {
+            startGame(playerNameElement.textContent, playerClassElement.textContent);
+        });
+        
+        // Обработчик кнопки проверки
+        checkBtn.addEventListener('click', checkAnswer);
+        
+        // Обработчик нажатия Enter в поле ввода
+        answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+    </script>
+</body>
+</html>
